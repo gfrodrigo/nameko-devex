@@ -22,6 +22,19 @@ class GatewayService(object):
     products_rpc = RpcProxy('products')
 
     @http(
+        "GET", "/products",
+        expected_exceptions=BadRequest
+    )
+    def list_products(self, request):
+        """Gets product list
+        """
+        products = self.products_rpc.list()
+        return Response(
+            ProductSchema(many=True).dumps(products).data,
+            mimetype='application/json'
+        )
+
+    @http(
         "GET", "/products/<string:product_id>",
         expected_exceptions=ProductNotFound
     )
@@ -72,6 +85,32 @@ class GatewayService(object):
         self.products_rpc.create(product_data)
         return Response(
             json.dumps({'id': product_data['id']}), mimetype='application/json'
+        )
+
+    @http(
+        "DELETE", "/products/<string:product_id>",
+        expected_exceptions=ProductNotFound
+    )
+    def delete_product(self, request, product_id):
+        """Delete product by `product_id`
+        """
+        response = self.products_rpc.delete(product_id)
+        return Response(
+            ProductSchema().dumps(response).data,
+            mimetype='application/json'
+        )
+
+    @http(
+        "GET", "/orders",
+        expected_exceptions=BadRequest
+    )
+    def list_orders(self, request):
+        """Gets Order List
+        """
+        orders = self.orders_rpc.list_orders()
+        return Response(
+            GetOrderSchema(many=True).dumps(orders).data,
+            mimetype='application/json'
         )
 
     @http("GET", "/orders/<int:order_id>", expected_exceptions=OrderNotFound)
