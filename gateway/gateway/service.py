@@ -196,7 +196,7 @@ class GatewayService(object):
 
     def _create_order(self, order_data):
         # check order product ids are valid
-        valid_product_ids = {prod['id'] for prod in self.products_rpc.list()}
+        valid_product_ids = {self._format_id(prod['title']) for prod in self.products_rpc.list_ids()}
         for item in order_data['order_details']:
             if item['product_id'] not in valid_product_ids:
                 raise ProductNotFound(
@@ -211,3 +211,6 @@ class GatewayService(object):
             serialized_data['order_details']
         )
         return result['id']
+
+    def _format_id(self, product_id):
+        return product_id.lower().replace('products:', '')

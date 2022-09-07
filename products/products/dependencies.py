@@ -49,6 +49,10 @@ class StorageWrapper:
         for key in keys:
             yield self._from_hash(self.client.hgetall(key))
 
+    def list_ids(self):
+        keys = self.client.keys(self._format_key('*'))
+        return keys
+
     def create(self, product):
         self.client.hmset(
             self._format_key(product['id']),
